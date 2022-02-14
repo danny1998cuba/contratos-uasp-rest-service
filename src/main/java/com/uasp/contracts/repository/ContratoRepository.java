@@ -8,6 +8,7 @@ import com.uasp.contracts.model.Contrato;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  *
@@ -15,7 +16,8 @@ import org.springframework.data.jpa.repository.Query;
  */
 public interface ContratoRepository extends JpaRepository<Contrato, Integer> {
 
-    public List<Contrato> findByIdProveedor(int idProveedor);
+    @Query("Select c from Contrato c where c.idProveedor.id = :idProveedor")
+    public List<Contrato> findByIdProveedor(@Param(value = "idProveedor")int idProveedor);
 
     public List<Contrato> findByIdDictamenIsNull();
 
