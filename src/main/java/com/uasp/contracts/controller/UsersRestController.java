@@ -123,17 +123,4 @@ public class UsersRestController {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Error message")
     public void handleError() {
     }
-
-    private boolean saveRoles(Users input) {
-        if (!input.getRolesList().isEmpty()) {
-            for (Roles rol : input.getRolesList()) {
-                if (!roleService.findById(rol.getId()).isPresent()) {
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
 }

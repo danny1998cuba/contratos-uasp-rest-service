@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.uasp</groupId>
     <artifactId>contracts</artifactId>
-    <version>0.4.0</version>
+    <version>0.7.0</version>
     <packaging>war</packaging>
     <name>contracts</name>
     <description>Backend Sistema de gestion de la contratacion UASP Jaruco</description>
@@ -29,7 +29,7 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -50,7 +50,7 @@
             <artifactId>lombok</artifactId>
         </dependency>
         
-<!--        Security
+        <!--Security-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
-        </dependency>-->
+        </dependency>
     </dependencies>
 
     <build>
