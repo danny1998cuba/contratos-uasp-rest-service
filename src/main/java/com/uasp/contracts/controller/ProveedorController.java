@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author Daniel
  */
 @RestController
-@RequestMapping("/proveedor")
+@RequestMapping("/api/proveedor")
 public class ProveedorController {
 
     @Autowired

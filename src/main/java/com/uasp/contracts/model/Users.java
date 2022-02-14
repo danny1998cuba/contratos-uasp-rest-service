@@ -39,25 +39,33 @@ public class Users implements Serializable {
     @Basic(optional = false)
     @Column(name = "id")
     private Integer id;
+    
     @Basic(optional = false)
     @Column(name = "username")
     private String username;
+    
     @Basic(optional = false)
     @Column(name = "password")
     private String password;
+    
     @Basic(optional = false)
     @Column(name = "nombre")
     private String nombre;
+    
     @Basic(optional = false)
     @Column(name = "apellidoP")
     private String apellidoP;
+    
     @Basic(optional = false)
     @Column(name = "apellidoM")
     private String apellidoM;
+    
     @Column(name = "email")
     private String email;
+    
     @Column(name = "telefono")
     private String telefono;
+    
     @Basic(optional = false)
     @Column(name = "enabled")
     private boolean enabled;

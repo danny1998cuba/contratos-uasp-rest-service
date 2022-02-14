@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author Daniel
  */
 @RestController
-@RequestMapping("/contrato")
+@RequestMapping("/api/contrato")
 public class ContratoController {
     
     @Autowired

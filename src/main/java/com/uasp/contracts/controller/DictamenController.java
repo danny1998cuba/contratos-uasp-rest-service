@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author Daniel
  */
 @RestController
-@RequestMapping("/dictamen")
+@RequestMapping("/api/dictamen")
 public class DictamenController {
 
     @Autowired
