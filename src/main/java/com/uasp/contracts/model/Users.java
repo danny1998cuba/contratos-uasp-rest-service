@@ -4,6 +4,7 @@
  */
 package com.uasp.contracts.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -43,6 +44,7 @@ public class Users implements Serializable {
 
     @Basic(optional = false)
     @Column(name = "password")
+    @JsonIgnore
     private String password;
 
     @Basic(optional = false)
