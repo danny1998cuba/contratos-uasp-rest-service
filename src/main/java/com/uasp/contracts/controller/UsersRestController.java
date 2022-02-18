@@ -4,6 +4,8 @@
  */
 package com.uasp.contracts.controller;
 
+import com.google.gson.Gson;
+import com.uasp.contracts.MessageResponse;
 import com.uasp.contracts.model.Roles;
 import com.uasp.contracts.model.Users;
 import com.uasp.contracts.service.RoleService;
@@ -11,6 +13,7 @@ import com.uasp.contracts.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  *
  * @author Daniel
  */
+@CrossOrigin(origins = {"*"})
 @RestController
 @RequestMapping("/api/users")
 public class UsersRestController {
@@ -35,6 +39,9 @@ public class UsersRestController {
 
     @Autowired
     RoleService roleService;
+    
+    @Autowired
+    Gson g;
 
     @GetMapping("")
     public ResponseEntity<?> list() {
@@ -58,24 +65,30 @@ public class UsersRestController {
                 if (!input.getRolesList().isEmpty()) {
                     for (Roles rol : input.getRolesList()) {
                         if (!roleService.findById(rol.getId()).isPresent()) {
-                            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Rol no existente " + rol.getName());
+                            MessageResponse m = new MessageResponse("Rol no existente " + rol.getName());
+                            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(g.toJson(m));
                         }
                     }
                     int idRes = service.update(input, id);
 
                     if (idRes != -1) {
-                        return ResponseEntity.ok("Elemento con id " + idRes + " modificado correctamente");
+                        MessageResponse m = new MessageResponse("Elemento con id " + idRes + " modificado correctamente");
+                        return ResponseEntity.ok(g.toJson(m));
                     } else {
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encuentra el elemento con id " + id);
+                        MessageResponse m = new MessageResponse("No se encuentra el elemento con id " + id);
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(g.toJson(m));
                     }
                 } else {
-                    return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("El usuario debe tener al menos un rol");
+                    MessageResponse m = new MessageResponse("El usuario debe tener al menos un rol");
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(g.toJson(m));
                 }
             } else {
-                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("El nombre de usuario ya existe");
+                MessageResponse m = new MessageResponse("El nombre de usuario ya existe");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(g.toJson(m));
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+            MessageResponse m = new MessageResponse(e.getMessage());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(g.toJson(m));
         }
     }
 
@@ -86,20 +99,25 @@ public class UsersRestController {
                 if (!input.getRolesList().isEmpty()) {
                     for (Roles rol : input.getRolesList()) {
                         if (!roleService.findById(rol.getId()).isPresent()) {
-                            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Rol no existente " + rol.getName());
+                            MessageResponse m = new MessageResponse("Rol no existente " + rol.getName());
+                            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(g.toJson(m));
                         }
                     }
                     int idRes = service.save(input);
-                    return ResponseEntity.status(HttpStatus.CREATED).body("Elemento creado con id " + idRes);
+                    MessageResponse m = new MessageResponse("Elemento creado con id " + idRes);
+                    return ResponseEntity.status(HttpStatus.CREATED).body(g.toJson(m));
                 } else {
-                    return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("El usuario debe tener al menos un rol");
+                    MessageResponse m = new MessageResponse("El usuario debe tener al menos un rol");
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(g.toJson(m));
                 }
             } else {
-                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("El nombre de usuario ya existe");
+                MessageResponse m = new MessageResponse("El nombre de usuario ya existe");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(g.toJson(m));
             }
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+            MessageResponse m = new MessageResponse(e.getMessage());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(g.toJson(m));
         }
     }
 
@@ -109,13 +127,16 @@ public class UsersRestController {
             boolean deleted = service.deleteById(id);
 
             if (deleted) {
-                return ResponseEntity.ok("Elemento con id " + id + " eliminado correctamente");
+                MessageResponse m = new MessageResponse("Elemento con id " + id + " eliminado correctamente");
+                return ResponseEntity.ok(g.toJson(m));
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encuentra el elemento con id " + id);
+                MessageResponse m = new MessageResponse("No se encuentra el elemento con id " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(g.toJson(m));
             }
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+            MessageResponse m = new MessageResponse(e.getMessage());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(g.toJson(m));
         }
     }
 

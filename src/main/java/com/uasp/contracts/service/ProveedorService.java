@@ -23,7 +23,7 @@ public class ProveedorService implements Services<Proveedor, Integer> {
 
     @Override
     public Integer save(Proveedor object) {
-        if(object.getId() != null) {
+        if (object.getId() != null) {
             object.setId(null);
         }
         Proveedor p = repository.save(object);
@@ -43,7 +43,14 @@ public class ProveedorService implements Services<Proveedor, Integer> {
 
     @Override
     public boolean deleteById(Integer id) {
-        return true;
+        if (repository.findById(id).isPresent()) {
+            Proveedor p = repository.findById(id).get();
+            p.setActivo(false);
+            repository.save(p);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -56,4 +63,15 @@ public class ProveedorService implements Services<Proveedor, Integer> {
         return repository.findById(id);
     }
 
+    public List<Proveedor> findByActivo(boolean activo) {
+        return repository.findByActivo(activo);
+    }
+
+    public boolean isInactivo(String nombre) {
+        return repository.findByNombreAndActivo(nombre, false) != null;
+    }
+
+    public Proveedor findByName(String nombre) {
+        return repository.findByNombre(nombre);
+    }
 }

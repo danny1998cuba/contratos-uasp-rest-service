@@ -44,7 +44,6 @@ public class Users implements Serializable {
 
     @Basic(optional = false)
     @Column(name = "password")
-    @JsonIgnore
     private String password;
 
     @Basic(optional = false)

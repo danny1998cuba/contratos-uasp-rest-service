@@ -4,6 +4,8 @@
  */
 package com.uasp.contracts.controller;
 
+import com.google.gson.Gson;
+import com.uasp.contracts.MessageResponse;
 import com.uasp.contracts.model.Proveedor;
 import com.uasp.contracts.service.ProveedorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  *
  * @author Daniel
  */
+@CrossOrigin(origins = {"*"})
 @RestController
 @RequestMapping("/api/proveedor")
 public class ProveedorController {
@@ -31,8 +35,16 @@ public class ProveedorController {
     @Autowired
     ProveedorService service;
 
+    @Autowired
+    Gson g;
+
     @GetMapping("")
     public ResponseEntity<?> list() {
+        return ResponseEntity.ok(service.findByActivo(true));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> listAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
@@ -47,29 +59,64 @@ public class ProveedorController {
             int idRes = service.update(input, id);
 
             if (idRes != -1) {
-                return ResponseEntity.ok("Elemento con id " + idRes + " modificado correctamente");
+                MessageResponse m = new MessageResponse("Elemento con id " + idRes + " modificado correctamente");
+                return ResponseEntity.ok(g.toJson(m));
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encuentra el elemento con id " + id);
+                MessageResponse m = new MessageResponse("No se encuentra el elemento con id " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(g.toJson(m));
             }
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+            MessageResponse m = new MessageResponse(e.getMessage());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(g.toJson(m));
         }
     }
 
     @PostMapping("")
     public ResponseEntity<?> post(@RequestBody Proveedor input) {
         try {
-            int idRes = service.save(input);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Elemento creado con id " + idRes);
+            int idRes;
+            if (service.findByName(input.getNombre()) != null) {
+                if (service.isInactivo(input.getNombre())) {
+                    Proveedor prov = service.findByName(input.getNombre());
+                    prov.setActivo(true);
+                    idRes = service.update(prov, prov.getId());
+                    if (idRes == -1) {
+                        MessageResponse m = new MessageResponse("No se encuentra el elemento con id " + prov.getId());
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(g.toJson(m));
+                    }
+                } else {
+                    MessageResponse m = new MessageResponse("Ya existe un elemento con el nombre " + input.getNombre());
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(g.toJson(m));
+                }
+            } else {
+                idRes = service.save(input);
+            }
+            MessageResponse m = new MessageResponse("Elemento creado con id " + idRes);
+            return ResponseEntity.status(HttpStatus.CREATED).body(g.toJson(m));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+            MessageResponse m = new MessageResponse(e.getMessage());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(g.toJson(m));
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable int id) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("No implementado");
+        try {
+            boolean deleted = service.deleteById(id);
+
+            if (deleted) {
+                MessageResponse m = new MessageResponse("Elemento con id " + id + " eliminado correctamente");
+                return ResponseEntity.ok(g.toJson(m));
+            } else {
+                MessageResponse m = new MessageResponse("No se encuentra el elemento con id " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(g.toJson(m));
+            }
+
+        } catch (Exception e) {
+            MessageResponse m = new MessageResponse(e.getMessage());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(g.toJson(m));
+        }
     }
 
     @ExceptionHandler(Exception.class)

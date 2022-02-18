@@ -4,6 +4,8 @@
  */
 package com.uasp.contracts.controller;
 
+import com.google.gson.Gson;
+import com.uasp.contracts.MessageResponse;
 import com.uasp.contracts.model.Contrato;
 import com.uasp.contracts.service.ContratoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -25,12 +28,16 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  *
  * @author Daniel
  */
+@CrossOrigin(origins = {"*"})
 @RestController
 @RequestMapping("/api/contrato")
 public class ContratoController {
     
     @Autowired
     ContratoService service;
+    
+    @Autowired
+    Gson g;
     
     @GetMapping("")
     public ResponseEntity<?> list(
@@ -76,13 +83,16 @@ public class ContratoController {
             int idRes = service.update(input, id);
             
             if (idRes != -1) {
-                return ResponseEntity.ok("Elemento con id " + idRes + " modificado correctamente");
+                MessageResponse m = new MessageResponse("Elemento con id " + idRes + " modificado correctamente");
+                return ResponseEntity.ok(g.toJson(m));
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encuentra el elemento con id " + id);
+                MessageResponse m = new MessageResponse("No se encuentra el elemento con id " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(g.toJson(m));
             }
             
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+            MessageResponse m = new MessageResponse(e.getMessage());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(g.toJson(m));
         }
     }
     
@@ -90,15 +100,18 @@ public class ContratoController {
     public ResponseEntity<?> post(@RequestBody Contrato input) {
         try {
             int idRes = service.save(input);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Elemento creado con id " + idRes);
+            MessageResponse m = new MessageResponse("Elemento creado con id " + idRes);
+            return ResponseEntity.status(HttpStatus.CREATED).body(g.toJson(m));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage());
+            MessageResponse m = new MessageResponse(e.getMessage());
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(g.toJson(m));
         }
     }
     
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable int id) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("No implementado");
+        MessageResponse m = new MessageResponse("No implementado");
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(g.toJson(m));
     }
     
     @ExceptionHandler(Exception.class)

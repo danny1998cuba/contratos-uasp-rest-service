@@ -44,6 +44,10 @@ public class Proveedor implements Serializable {
     @Basic(optional = false)
     @Column(name = "nombre")
     private String nombre;
+    
+    @Basic(optional = false)
+    @Column(name = "activo")
+    private boolean activo;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idProveedor")
     @JsonIgnore
