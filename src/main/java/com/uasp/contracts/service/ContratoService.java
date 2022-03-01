@@ -60,26 +60,34 @@ public class ContratoService implements Services<Contrato, Integer> {
         return repository.findByIdProveedor(idProv);
     }
 
+    public List<Contrato> findByYear(int year) {
+        return repository.findByYear(year);
+    }
+
     public List<Contrato> findIfIsDict(boolean isDict) {
-        return isDict ? repository.findByIdDictamenIsNotNull() 
+        return isDict ? repository.findByIdDictamenIsNotNull()
                 : repository.findByIdDictamenIsNull();
     }
-    
-    public List<Contrato> findIfIsDictAndProv(boolean isDict, int idProv) {
-        return isDict ? repository.findByIdDictamenIsNotNullAndIdProveedor(idProv)
-                : repository.findByIdDictamenIsNullAndIdProveedor(idProv);
-    }
-    
+
     public List<Contrato> findIfIsAprob(boolean isAprob, boolean withDict) {
-        if(isAprob) {
+        if (isAprob) {
             return repository.findByAprobados();
         } else {
-            if(withDict){
+            if (withDict) {
                 return repository.findByNoAprobadosWithDict();
             } else {
                 return repository.findByNoAprobados();
             }
         }
+    }
+
+    public List<Contrato> findXVenc() {
+        return repository.findXVenc();
+    }
+
+    public List<Contrato> findXVigencia(boolean isVig) {
+        return isVig ? repository.findVigentes()
+                : repository.findVencidos();
     }
 
 }
