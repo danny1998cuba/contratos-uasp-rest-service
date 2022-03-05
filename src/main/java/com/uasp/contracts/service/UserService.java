@@ -66,6 +66,10 @@ public class UserService implements Services<Users, Integer> {
     public Optional<Users> findById(Integer id) {
         return repository.findById(id);
     }
+    
+    public Optional<Users> findByUsername(String username) {
+        return Optional.ofNullable(repository.findByUsername(username));
+    }
 
     public boolean existentUsername(String username) {
         return repository.findByUsername(username) != null;

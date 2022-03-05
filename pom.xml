@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.uasp</groupId>
     <artifactId>contracts</artifactId>
-    <version>0.7.0</version>
+    <version>0.8.0</version>
     <packaging>war</packaging>
     <name>contracts</name>
     <description>Backend Sistema de gestion de la contratacion UASP Jaruco</description>

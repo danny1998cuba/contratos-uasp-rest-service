@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @CrossOrigin(origins = {"*"})
 @RestController
+@PreAuthorize("hasAnyAuthority('CONT')")
 @RequestMapping("/api/contrato")
 public class ContratoController {
 
@@ -42,6 +44,7 @@ public class ContratoController {
     Gson g;
 
     @GetMapping("")
+    @PreAuthorize("hasAnyAuthority('CONT', 'ADMIN', 'USER')")
     public ResponseEntity<?> list(
             @RequestParam(name = "prov", required = false) Integer idProv,
             @RequestParam(name = "dict", required = false) Boolean isDict,
@@ -58,7 +61,7 @@ public class ContratoController {
         List<Contrato> byVig = vig != null ? service.findXVigencia(vig) : null;
         List<Contrato> byXVenc = (xVenc != null && xVenc) ? service.findXVenc() : null;
         List<Contrato> byYear = year != null ? service.findByYear(year) : null;
-        
+
         listas.add(byProv);
         listas.add(byDict);
         listas.add(byAprob);
@@ -132,36 +135,6 @@ public class ContratoController {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Error message")
     public void handleError() {
-    }
-
-    private enum QUERY_TYPE {
-        FIND_ALL,
-        FIND_BY_PROV,
-        FIND_BY_DICT,
-        FIND_BY_PROV_AND_DICT,
-        FIND_BY_APROBADO,
-        FIND_BY_APROBADO_AND_DICT
-    }
-
-    private QUERY_TYPE processList(Object idProv, Object idDict, Object isAprob, Object vig, Object xVenc, Object year) {
-        if (isAprob != null) {
-            if (idDict != null && (boolean) idDict == true) {
-                return QUERY_TYPE.FIND_BY_APROBADO_AND_DICT;
-            } else {
-                return QUERY_TYPE.FIND_BY_APROBADO;
-            }
-        } else {
-            if (idProv != null && idDict == null) {
-                return QUERY_TYPE.FIND_BY_PROV;
-            }
-            if (idProv == null && idDict != null) {
-                return QUERY_TYPE.FIND_BY_DICT;
-            }
-            if (idProv != null && idDict != null) {
-                return QUERY_TYPE.FIND_BY_PROV_AND_DICT;
-            }
-        }
-        return QUERY_TYPE.FIND_ALL;
     }
 
 }

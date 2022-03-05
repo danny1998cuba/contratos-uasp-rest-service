@@ -36,6 +36,10 @@ public class Roles implements Serializable {
     @Basic(optional = false)
     @Column(name = "name")
     private String name;
+    
+    @Basic(optional = false)
+    @Column(name = "mostrar")
+    private String mostrar;
 
     public Integer getId() {
         return id;
@@ -51,6 +55,14 @@ public class Roles implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getMostrar() {
+        return mostrar;
+    }
+
+    public void setMostrar(String mostrar) {
+        this.mostrar = mostrar;
     }
 
 }
