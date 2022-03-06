@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.context.request.RequestContextHolder;
 
 /**
  *
@@ -52,7 +53,7 @@ public class AuthenticationController {
             authObj = auth.authenticate(
                     new UsernamePasswordAuthenticationToken(input.getUsername(), input.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authObj);
-            return getAuthenticated();
+            return ResponseEntity.status(HttpStatus.OK).body(g.toJson(new MessageResponse(RequestContextHolder.currentRequestAttributes().getSessionId())));
         } catch (BadCredentialsException ex) {
             MessageResponse msg = new MessageResponse("Credenciales incorrectas");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(g.toJson(msg));
