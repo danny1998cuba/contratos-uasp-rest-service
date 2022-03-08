@@ -66,7 +66,8 @@ public class AuthenticationController {
         Users u;
 
         if (principal != "anonymousUser") {
-            u = ((MyUserDetails) principal).getUser();
+            String uN = ((MyUserDetails) principal).getUser().getUsername();
+            u = userService.findByUsername(uN).orElse(null);
         } else {
             u = null;
         }

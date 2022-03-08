@@ -10,6 +10,11 @@ import com.uasp.contracts.model.Roles;
 import com.uasp.contracts.model.Users;
 import com.uasp.contracts.service.RoleService;
 import com.uasp.contracts.service.UserService;
+import com.uasp.contracts.service.UserService.ChangeState;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +46,7 @@ public class UsersRestController {
 
     @Autowired
     RoleService roleService;
-    
+
     @Autowired
     Gson g;
 
@@ -61,6 +66,7 @@ public class UsersRestController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('CONT', 'ADMIN', 'USER')")
     public ResponseEntity<?> put(@PathVariable int id, @RequestBody Users input) {
         try {
             if (!service.existentUsername(input.getUsername(), id)) {
@@ -142,8 +148,34 @@ public class UsersRestController {
         }
     }
 
+    @PostMapping("/pass/{id}")
+    @PreAuthorize("hasAnyAuthority('CONT', 'ADMIN', 'USER')")
+    public ResponseEntity<?> changePassword(@PathVariable int id, @RequestBody PassObj input) {
+        ChangeState result = service.changePassword(id, input.getOldPassword(), input.getNewPassword());
+
+        switch (result) {
+            case CHANGED:
+                return ResponseEntity.ok(new MessageResponse("Contraseña cambiada"));
+            case WRONG_OLD:
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageResponse("La contraseña anterior no es correcta"));
+            case USER_NOT_FOUND:
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Usuario no encontrado"));
+            default:
+                throw new AssertionError();
+        }
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Error message")
     public void handleError() {
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public static class PassObj {
+        private String oldPassword;
+        private String newPassword;
     }
 }

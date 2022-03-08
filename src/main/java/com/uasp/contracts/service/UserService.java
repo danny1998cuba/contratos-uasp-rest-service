@@ -8,6 +8,7 @@ import com.uasp.contracts.model.Users;
 import com.uasp.contracts.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,12 +35,14 @@ public class UserService implements Services<Users, Integer> {
 
     @Override
     public Integer update(Users object, Integer id) {
+        Pattern p = Pattern.compile("^\\$2[ayb]\\$[0-9]{2}\\$[A-Za-z0-9\\.\\/]{53}$");
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if (repository.findById(id).isPresent()) {
             object.setId(id);
-            if(!encoder.matches(object.getPassword(), repository.findById(id).get().getPassword())){
+            if (!p.matcher(object.getPassword()).matches()) {
                 object.setPassword(encoder.encode(object.getPassword()));
             }
+
             repository.save(object);
             return id;
         } else {
@@ -66,7 +69,7 @@ public class UserService implements Services<Users, Integer> {
     public Optional<Users> findById(Integer id) {
         return repository.findById(id);
     }
-    
+
     public Optional<Users> findByUsername(String username) {
         return Optional.ofNullable(repository.findByUsername(username));
     }
@@ -80,7 +83,11 @@ public class UserService implements Services<Users, Integer> {
         return (u != null) && (u.getId() != id);
     }
 
-    public boolean changePassword(int id, String oldPass, String newPass) {
+    public enum ChangeState {
+        CHANGED, WRONG_OLD, USER_NOT_FOUND
+    }
+
+    public ChangeState changePassword(int id, String oldPass, String newPass) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         Optional<Users> fromDb = repository.findById(id);
@@ -90,12 +97,12 @@ public class UserService implements Services<Users, Integer> {
             if (encoder.matches(oldPass, u.getPassword())) {
                 u.setPassword(encoder.encode(newPass));
                 repository.save(u);
-                return true;
+                return ChangeState.CHANGED;
             } else {
-                return false;
+                return ChangeState.WRONG_OLD;
             }
         } else {
-            return false;
+            return ChangeState.USER_NOT_FOUND;
         }
     }
 
